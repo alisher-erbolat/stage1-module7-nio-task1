@@ -10,26 +10,26 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class FileReader {
-    public Profile getDataFromFile(File file) throws IOException {
+    public Profile getDataFromFile(File file){
 
         String fileData = readFileData(file);
         return parseProfileData(fileData);
     }
 
-    private String readFileData(File file) throws IOException {
+    private String readFileData(File file){
         StringBuilder stringBuilder = new StringBuilder();
-        RandomAccessFile randomAccessFile = new RandomAccessFile(file,
-                "rw");
-        FileChannel fileChannel = randomAccessFile.getChannel();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(512);
-        Charset charset = StandardCharsets.US_ASCII;
-        while (fileChannel.read(byteBuffer) > 0) {
-            byteBuffer.rewind();
-            stringBuilder.append(charset.decode(byteBuffer)).append(System.lineSeparator());
-            byteBuffer.flip();
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(file,"rw");
+        FileChannel fileChannel = randomAccessFile.getChannel()) {
+            ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+            Charset charset = StandardCharsets.US_ASCII;
+            while (fileChannel.read(byteBuffer) > 0) {
+                byteBuffer.rewind();
+                stringBuilder.append(charset.decode(byteBuffer)).append(System.lineSeparator());
+                byteBuffer.flip();
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
         }
-        fileChannel.close();
-        randomAccessFile.close();
         return stringBuilder.toString();
     }
 
